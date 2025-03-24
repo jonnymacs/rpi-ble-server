@@ -1,0 +1,4 @@
+DEVICE_HOSTNAME=MACMIND_RPI_BLE_SERVER
+device_user1=macmind
+device_user1pass=macmind
+IMAGE_NAME=macmind_rpi_ble_server

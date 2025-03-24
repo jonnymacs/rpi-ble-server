@@ -1,0 +1,22 @@
+services:
+  ble_server:
+    platform: linux/arm64
+    stdin_open: true
+    tty: true
+    build:
+        context: ./ble_server
+        dockerfile: Dockerfile.ble_server
+    image: ble_server:latest
+    network_mode: host
+    volumes:
+      - ./ble_server:/app
+  macmind_rpi_ble_server:
+    privileged: true
+    stdin_open: true
+    tty: true
+    build:
+        context: ./macmind_rpi_ble_server
+        dockerfile: Dockerfile.macmind_rpi_ble_server
+    image: macmind_rpi_ble_server:latest
+    volumes:
+      - ./macmind_rpi_ble_server:/home/imagegen/macmind_rpi_ble_server
