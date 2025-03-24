@@ -13,8 +13,7 @@ cd rpi_ble_server
 ./build.sh
 ```
 
-# if you are on intel chip you need to execute the commands in the build script
-# and make this change in the rpi image gen container
+## if you are on intel chip you need to execute the commands in the build script and make this change in the rpi image gen container
 ```bash
 $sudo su
 $mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc && echo 1 > /proc/sys/fs/binfmt_misc/status
@@ -32,4 +31,4 @@ on an SD card or USB stick
 
 Please refer to https://github.com/raspberrypi/rpi-image-gen for more information rpi-image-gen
 
-[Follow me on X](https://x.com/jonnymacs), and don't forget to star [this GitHub repository](https://github.com/jonnymacs/hardhat-tutorial)!
+[Follow me on X](https://x.com/jonnymacs), and don't forget to star [this GitHub repository](https://github.com/jonnymacs/rpi_ble_server)!
