@@ -1,4 +1,4 @@
-# rpi_ble_server
+# rpi-ble-server
 
 Build a bluetooth low enery service for a Raspberry Pi.
 
