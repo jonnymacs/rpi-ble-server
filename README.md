@@ -8,8 +8,8 @@ image to run rpi-image gen to build a raspberry pi image
 clone this repository and run the build script
 
 ```sh
-git clone https://github.com/jonnymacs/rpi_ble_server
-cd rpi_ble_server
+git clone https://github.com/jonnymacs/rpi-ble-server
+cd rpi-ble-server
 ./build.sh
 ```
 
