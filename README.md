@@ -5,19 +5,16 @@ Build a bluetooth low enery service for a Raspberry Pi.
 Build images to compile the ble server - written in Rust, and an
 image to run rpi-image gen to build a raspberry pi image
 
+This has been tested on both ARM64 Mac and AMD64 Mac laptops.
+
+AMD is much slower as expected due to emulation.
+
 clone this repository and run the build script
 
 ```sh
 git clone https://github.com/jonnymacs/rpi-ble-server
 cd rpi-ble-server
 ./build.sh
-```
-
-## if you are on intel chip you need to execute the commands in the build script and make this change in the rpi image gen container
-```bash
-$sudo su
-$mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc && echo 1 > /proc/sys/fs/binfmt_misc/status
-$exit
 ```
 
 Use the Raspberry Pi Imager tool to install the img file located in macmind_rpi_ble_server/deploy
