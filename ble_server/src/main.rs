@@ -1,15 +1,12 @@
 use bluer::{
-    Adapter, AdapterEvent, DeviceEvent, Session, Uuid, adv::{ Advertisement }, gatt::{
+    AdapterEvent, Session, Uuid, adv::{ Advertisement }, gatt::{
         local::{
             Application, Characteristic, Service, CharacteristicWrite, CharacteristicWriteMethod
-        },
-        CharacteristicWriter,
-    },
+        }
+    }
 };
 use std::collections::BTreeSet;
 use futures::stream::StreamExt;
-use std::time::{SystemTime, UNIX_EPOCH};
-use tokio::io::AsyncWriteExt;
 use std::process::Command;
 
 #[tokio::main]
@@ -37,56 +34,63 @@ async fn main() -> bluer::Result<()> {
         uuid: characteristic_uuid,
         write: Some(CharacteristicWrite {
             write: true,
-            write_without_response: false,
-            method: CharacteristicWriteMethod::Fun(Box::new(|value, req| {
-                println!("Received write: {:?}", value);
-                if value.len() > 8 {
-                    // Extract 8-byte timestamp
-                    let timestamp_bytes: [u8; 8] = value[..8].try_into().unwrap();
-                    let timestamp = f64::from_le_bytes(timestamp_bytes);
-                    println!("Received timestamp: {}", timestamp);
+            write_without_response: true,
+            method: CharacteristicWriteMethod::Fun(Box::new(move |value, _req| {
+                Box::pin(async move {
+                    println!("Received write: {:?}", value);
+                    if value.len() > 8 {
+                        // Extract 8-byte timestamp
+                        let timestamp_bytes: [u8; 8] = value[..8].try_into().unwrap();
+                        let timestamp = f64::from_le_bytes(timestamp_bytes);
+                        println!("Received timestamp: {}", timestamp);
 
-                    // Validate timestamp
-                    if timestamp >= 0.0 && timestamp <= 4102444800.0 && timestamp.is_finite() {
-                        // Set system time
-                        let timestamp_secs = timestamp as i64;
-                        let date_cmd = format!("date -s @{}", timestamp_secs);
-                        match Command::new("sh")
-                            .arg("-c")
-                            .arg(&date_cmd)
-                            .status()
-                        {
-                            Ok(status) if status.success() => println!("System time set to: {}", timestamp),
-                            Ok(status) => println!("Failed to set system time, exit code: {}", status),
-                            Err(e) => println!("Failed to execute date command: {:?}", e),
-                        }
-
-                        // Extract timezone (remaining bytes)
-                        let timezone_bytes = &value[8..];
-                        if let Ok(timezone) = String::from_utf8(timezone_bytes.to_vec()) {
-                            println!("Received timezone: {}", timezone);
-                            // Set timezone with timedatectl
-                            let tz_cmd = format!("timedatectl set-timezone {}", timezone);
+                        // Validate timestamp
+                        if timestamp >= 0.0 && timestamp <= 4102444800.0 && timestamp.is_finite() {
+                            // Set system time
+                            let timestamp_secs = timestamp as i64;
+                            let date_cmd = format!("date -s @{}", timestamp_secs);
                             match Command::new("sh")
                                 .arg("-c")
-                                .arg(&tz_cmd)
+                                .arg(&date_cmd)
                                 .status()
                             {
-                                Ok(status) if status.success() => println!("Timezone set to: {}", timezone),
-                                Ok(status) => println!("Failed to set timezone, exit code: {}", status),
-                                Err(e) => println!("Failed to execute timezone command: {:?}", e),
+                                Ok(status) if status.success() => println!("System time set to: {}", timestamp),
+                                Ok(status) => println!("Failed to set system time, exit code: {}", status),
+                                Err(e) => println!("Failed to execute date command: {:?}", e),
+                            }
+
+                            // Extract timezone (remaining bytes)
+                            let timezone_bytes = &value[8..];
+                            if let Ok(timezone) = String::from_utf8(timezone_bytes.to_vec()) {
+                                println!("Received timezone: {}", timezone);
+                                // Set timezone with timedatectl
+                                let tz_cmd = format!("timedatectl set-timezone {}", timezone);
+                                match Command::new("sh")
+                                    .arg("-c")
+                                    .arg(&tz_cmd)
+                                    .status()
+                                {
+                                    Ok(status) if status.success() => println!("Timezone set to: {}", timezone),
+                                    Ok(status) => println!("Failed to set timezone, exit code: {}", status),
+                                    Err(e) => println!("Failed to execute timezone command: {:?}", e),
+                                }
+                            } else {
+                                println!("Invalid timezone data: {:?}", timezone_bytes);
                             }
                         } else {
-                            println!("Invalid timezone data: {:?}", timezone_bytes);
+                            println!("Invalid timestamp: {} (out of range or not finite)", timestamp);
                         }
                     } else {
-                        println!("Invalid timestamp: {} (out of range or not finite)", timestamp);
+                        println!("Invalid data length: {}", value.len());
                     }
-                } else {
-                    println!("Invalid data length: {}", value.len());
-                }
-                Box::pin(async { Ok(()) }) // Return a pinned future
+                    println!("Write handler completed");
+                    Ok(())
+                }) // Return a pinned future
             })),
+            // Disable encryption/bonding
+            encrypt_write: false,
+            encrypt_authenticated_write: false,
+            secure_write: false,
             ..Default::default()
         }),
         ..Default::default()
@@ -107,7 +111,7 @@ async fn main() -> bluer::Result<()> {
     };
 
     // Create a GATT server and serve the application
-    let server = adapter.serve_gatt_application(app).await?;
+    let _server = adapter.serve_gatt_application(app).await?;
     println!("GATT server running!");
 
     // Define the advertisement
@@ -115,14 +119,15 @@ async fn main() -> bluer::Result<()> {
         service_uuids: vec![service_uuid]
             .into_iter()
             .collect::<BTreeSet<Uuid>>(),
-        local_name: Some("SetRPITimeBLEServer".to_string()), // Optional: set a friendly name
-        timeout: Some(std::time::Duration::from_secs(180)),  // Optional: stop advertising after 3 minutes
+        local_name: Some("SetRPITime".to_string()), // Optional: set a friendly name
+        discoverable: Some(true),
+        //timeout: Some(std::time::Duration::from_secs(180)),  // Optional: stop advertising after 3 minutes
         ..Default::default()
     };
 
     // Advertise the service using Advertisement
     let _adv_handle = adapter.advertise(adv).await?;
-    println!("Advertising SetRPITimeBLEServer");
+    println!("Advertising TimeCubeBLEServer");
 
     // Handle adapter-level events
     let mut events = adapter.events().await?;

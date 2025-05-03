@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -eu
+
+# Write out our systemd service to unblock bluetooth
+rsync ../bluetooth-setup/unblock-bluetooth.service $1/etc/systemd/system/unblock-bluetooth.service
+
+$BDEBSTRAP_HOOKS/enable-units "$1" unblock-bluetooth
+
+rsync ../bluetooth-setup/ble-server.service $1/etc/systemd/system/ble-server.service
+
+$BDEBSTRAP_HOOKS/enable-units "$1" ble-server
+
+cat > $1/etc/machine-info <<'EOF'
+PRETTY_HOSTNAME=SetRPITime
+EOF

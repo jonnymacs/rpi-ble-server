@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -eu
+
+mkdir -p $1/etc/systemd/system/getty@tty1.service.d
+
+# Write out our systemd getty override service
+cat ../autologin-setup/override.conf.tpl | sed \
+   -e "s|<DEVICE_USER>|$IGconf_device_user1|g" \
+   > $1/etc/systemd/system/getty@tty1.service.d/override.conf

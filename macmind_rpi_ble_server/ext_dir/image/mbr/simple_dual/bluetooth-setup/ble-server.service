@@ -1,0 +1,14 @@
+[Unit]
+Description=BLE Server for Setting System Time
+After=network.target bluetooth.service
+Requires=bluetooth.service
+
+[Service]
+ExecStart=/usr/local/bin/ble_server
+Restart=always
+RestartSec=5
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
