@@ -20,7 +20,12 @@ cd rpi-ble-server
 Use the Raspberry Pi Imager tool to install the img file located in macmind_rpi_ble_server/deploy
 on an SD card or USB stick
 
-[![Watch and Like the recorded video for this project on YouTube](https://img.youtube.com/vi/L8ZH9zQwcY8/maxresdefault.jpg)](https://www.youtube.com/watch?v=L8ZH9zQwcY8)
+[![Watch and Like the recorded video for this project on YouTube](https://img.youtube.com/vi/0ViqA6MWkeo/maxresdefault.jpg)](https://www.youtube.com/watch?v=0ViqA6MWkeo)
+
+**[Watch and Like the recorded video for this project on YouTube](https://www.youtube.com/watch?v=0ViqA6MWkeo)** 
+
+
+[![Watch and Like Part 1 for this project on YouTube](https://img.youtube.com/vi/L8ZH9zQwcY8/maxresdefault.jpg)](https://www.youtube.com/watch?v=L8ZH9zQwcY8)
 
 **[Watch and Like the recorded video for this project on YouTube](https://www.youtube.com/watch?v=L8ZH9zQwcY8)** 
 
