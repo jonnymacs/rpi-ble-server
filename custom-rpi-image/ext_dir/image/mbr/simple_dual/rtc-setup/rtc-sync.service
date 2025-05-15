@@ -1,0 +1,11 @@
+[Unit]
+Description=Sync system time from RTC at boot
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/hwclock --hctosys
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

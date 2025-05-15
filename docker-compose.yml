@@ -10,13 +10,13 @@ services:
     network_mode: host
     volumes:
       - ./ble_server:/app
-  macmind_rpi_ble_server:
+  custom-rpi-image:
     privileged: true
     stdin_open: true
     tty: true
     build:
-        context: ./macmind_rpi_ble_server
-        dockerfile: Dockerfile.macmind_rpi_ble_server
+        context: ./custom-rpi-image
+        dockerfile: Dockerfile.custom-rpi-image
     image: macmind_rpi_ble_server:latest
     volumes:
-      - ./macmind_rpi_ble_server:/home/imagegen/macmind_rpi_ble_server
+      - ./custom-rpi-image:/home/imagegen/custom-rpi-image

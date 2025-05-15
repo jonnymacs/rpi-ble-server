@@ -3,7 +3,7 @@
 # Some settings may impact device functionality. See link above for details
 
 # Uncomment some or all of these to enable the optional hardware interfaces
-#dtparam=i2c_arm=on
+dtparam=i2c_arm=on
 #dtparam=i2s=on
 #dtparam=spi=on
 
@@ -39,3 +39,5 @@ dtoverlay=dwc2,dr_mode=host
 [all]
 BOOT_UART=1
 uart_2ndstage=1
+
+dtoverlay=i2c-rtc,ds3231

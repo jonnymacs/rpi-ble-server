@@ -44,35 +44,24 @@ async fn main() -> bluer::Result<()> {
                         let timestamp = f64::from_le_bytes(timestamp_bytes);
                         println!("Received timestamp: {}", timestamp);
 
+                        // Extract timezone (remaining bytes)
+                        let timezone_bytes = &value[8..];
+
                         // Validate timestamp
                         if timestamp >= 0.0 && timestamp <= 4102444800.0 && timestamp.is_finite() {
-                            // Set system time
-                            let timestamp_secs = timestamp as i64;
-                            let date_cmd = format!("date -s @{}", timestamp_secs);
-                            match Command::new("sh")
-                                .arg("-c")
-                                .arg(&date_cmd)
-                                .status()
-                            {
-                                Ok(status) if status.success() => println!("System time set to: {}", timestamp),
-                                Ok(status) => println!("Failed to set system time, exit code: {}", status),
-                                Err(e) => println!("Failed to execute date command: {:?}", e),
-                            }
-
-                            // Extract timezone (remaining bytes)
-                            let timezone_bytes = &value[8..];
                             if let Ok(timezone) = String::from_utf8(timezone_bytes.to_vec()) {
                                 println!("Received timezone: {}", timezone);
-                                // Set timezone with timedatectl
-                                let tz_cmd = format!("timedatectl set-timezone {}", timezone);
+                                // Set system time
+                                let timestamp_secs = timestamp as i64;
+                                let set_time_cmd = format!("set-time @{} {}", timestamp_secs, timezone);
                                 match Command::new("sh")
                                     .arg("-c")
-                                    .arg(&tz_cmd)
+                                    .arg(&set_time_cmd)
                                     .status()
                                 {
-                                    Ok(status) if status.success() => println!("Timezone set to: {}", timezone),
-                                    Ok(status) => println!("Failed to set timezone, exit code: {}", status),
-                                    Err(e) => println!("Failed to execute timezone command: {:?}", e),
+                                    Ok(status) if status.success() => println!("System time set to: {}, {}", timestamp, timezone),
+                                    Ok(status) => println!("Failed to set system time, exit code: {}", status),
+                                    Err(e) => println!("Failed to execute date command: {:?}", e),
                                 }
                             } else {
                                 println!("Invalid timezone data: {:?}", timezone_bytes);

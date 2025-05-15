@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -eu
+
+# Write out our systemd service to unblock wifi
+rsync ../rtc-setup/rtc-sync.service $1/etc/systemd/system/rtc-sync.service
+
+$BDEBSTRAP_HOOKS/enable-units "$1" rtc-sync
