@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -eu
+
+sudo date -s "$1"
+sudo timedatectl set-timezone "$2"
+sudo hwclock -w --rtc=/dev/rtc1
